@@ -10,6 +10,7 @@ import {useTranslation} from 'react-i18next';
 import {Keyboard, StyleSheet, View} from 'react-native';
 import * as Yup from 'yup';
 import {CreatePostHeader} from '../components';
+import Toast from 'react-native-toast-message';
 
 const CreatePost: React.FC<StackScreenProps<StackParamList, 'createPost'>> = ({
   navigation,

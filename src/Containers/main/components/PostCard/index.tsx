@@ -69,7 +69,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     backgroundColor: colors.gray30,
     height: '100%',
-    resizeMode: 'contain',
+    resizeMode: 'cover',
   },
   content: {
     flex: 1,

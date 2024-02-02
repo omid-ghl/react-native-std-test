@@ -7,6 +7,7 @@ import {ApplicationNavigator} from '@Navigators/ApplicationNavigator';
 import {Provider} from 'react-redux';
 import {store} from './src/Store';
 import {AlertWrapper} from '@Commons';
+import Toast from 'react-native-toast-message';
 
 const App = () => {
   useEffect(() => {
@@ -20,7 +21,7 @@ const App = () => {
       <Provider store={store}>
         <ApplicationNavigator />
         <AlertWrapper />
-        {/* <SnackBarService /> */}
+        <Toast />
       </Provider>
     </SafeAreaProvider>
   );

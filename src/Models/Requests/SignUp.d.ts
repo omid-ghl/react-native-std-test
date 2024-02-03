@@ -4,6 +4,7 @@ declare namespace ISignUp {
     lastName: string;
     email: string;
     password: string;
+    image: string;
   };
   type IProps = {};
 }

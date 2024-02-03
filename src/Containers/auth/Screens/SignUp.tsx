@@ -2,12 +2,16 @@ import {AppScreen, Button, Input} from '@Commons';
 import {ISignUp} from '@Models';
 import {StackParamList} from '@Navigators/Stacks';
 import {useSignupMutation} from '@Services';
+import {photoShooting, pickSingleImage} from '@Services/ImagePickerService';
+// import {pickSingleImage} from '@Services/ImagePickerService';
 import {SVG, colors, fonts, typography} from '@Theme';
 import {StackScreenProps} from '@react-navigation/stack';
 import {useFormik} from 'formik';
-import React, {useCallback, useEffect, useMemo} from 'react';
+import React, {useCallback, useEffect, useMemo, useState} from 'react';
 import {useTranslation} from 'react-i18next';
 import {
+  Alert,
+  Image,
   Keyboard,
   KeyboardAvoidingView,
   Platform,
@@ -16,23 +20,25 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import Toast from 'react-native-toast-message';
 import * as Yup from 'yup';
 
 const SignUp: React.FC<StackScreenProps<StackParamList, 'signUp'>> = ({
   navigation,
 }) => {
   const {t} = useTranslation();
+  const [imageUri, setImageUri] = useState('');
 
   const [
     signUp,
     {
       isSuccess: signUpIsSuccess,
       isError: signUpIsError,
-      isUninitialized: signUpIsUnitialized,
       isLoading: signUpIsLoading,
       data: signUpData,
+      error: signUpErr,
     },
-  ] = useSignupMutation();
+  ] = useSignupMutation() as any;
 
   const performSignUp = useCallback(
     (values: ISignUp.FormState) => {
@@ -42,9 +48,10 @@ const SignUp: React.FC<StackScreenProps<StackParamList, 'signUp'>> = ({
         password: values.password.trim(),
         first_name: values.firstName.trim(),
         last_name: values.lastName.trim(),
+        image: imageUri,
       });
     },
-    [signUp],
+    [imageUri, signUp],
   );
 
   const SignUpValidationSchema = useMemo(
@@ -80,20 +87,66 @@ const SignUp: React.FC<StackScreenProps<StackParamList, 'signUp'>> = ({
       lastName: '',
       email: '',
       password: '',
+      image: '',
     },
     onSubmit: performSignUp,
     validationSchema: SignUpValidationSchema,
   });
+
+  useEffect(() => {
+    if (signUpErr?.data?.image) {
+      Toast.show({
+        type: 'error',
+        text1: 'Some Error About Image!',
+        text2: signUpErr?.data?.image,
+      });
+    }
+    if (signUpIsError && signUpErr) {
+      setErrors({
+        firstName: signUpErr?.data?.first_name,
+        lastName: signUpErr?.data?.last_name,
+        password: signUpErr?.data?.password,
+        email: signUpErr?.data?.email,
+      });
+    }
+  }, [setErrors, signUpErr, signUpIsError]);
 
   const gotoLogin = useCallback(() => {
     navigation.navigate('login');
   }, [navigation]);
 
   useEffect(() => {
-    // navigation.navigate('home', {
-    //   email: values.email.trim(),
-    // });
-  }, [navigation, values.email]);
+    if (signUpIsSuccess && signUpData?.message) {
+      Toast.show({
+        type: 'success',
+        text1: '',
+        text2: signUpData?.message,
+      });
+      navigation.navigate('login');
+    }
+  }, [navigation, signUpData?.message, signUpIsSuccess, values.email]);
+
+  const choosePicFromGallery = async () => {
+    Alert.alert('Pick your image', '', [
+      {
+        text: 'Cancel',
+      },
+      {
+        text: 'Camera',
+        onPress: async () => {
+          const result: any = await photoShooting();
+          setImageUri(result?.assets[0]?.uri);
+        },
+      },
+      {
+        text: 'Libray',
+        onPress: async () => {
+          const result: any = await pickSingleImage();
+          setImageUri(result?.assets[0]?.uri);
+        },
+      },
+    ]);
+  };
 
   return (
     <AppScreen style={styles.container}>
@@ -102,7 +155,16 @@ const SignUp: React.FC<StackScreenProps<StackParamList, 'signUp'>> = ({
         style={styles.keyboardAvoiding}>
         <View style={styles.containerStyle}>
           <Text style={styles.headerText}>{t('sign_up')}</Text>
-          <SVG.Avatar style={styles.iconStyle} />
+          <TouchableOpacity
+            activeOpacity={0.9}
+            onPress={choosePicFromGallery}
+            style={styles.imageWrapper}>
+            {imageUri ? (
+              <Image style={styles.imageStyle} source={{uri: imageUri}} />
+            ) : (
+              <SVG.Avatar style={styles.iconStyle} />
+            )}
+          </TouchableOpacity>
           <Input
             onChangeText={handleChange('firstName')}
             value={values.firstName}
@@ -199,7 +261,22 @@ const styles = StyleSheet.create({
     color: colors.primary,
   },
   buttonStyle: {marginTop: 40},
-  iconStyle: {marginTop: 30},
+  iconStyle: {},
+  imageWrapper: {
+    width: 120,
+    height: 120,
+    borderRadius: 10000,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 20,
+  },
+  imageStyle: {
+    flex: 1,
+    width: '100%',
+    height: '100%',
+    resizeMode: 'cover',
+    borderRadius: 100,
+  },
 });
 
 export default SignUp;

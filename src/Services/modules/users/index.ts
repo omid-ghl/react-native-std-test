@@ -1,12 +1,14 @@
 import {api} from '@Services/api';
-import {checkToken} from './checkToken';
 import login from './login';
 import signup from './signup';
+import {checkUser} from './checkUser';
+import checkToken from './checkToken';
 
 export const userApi = api.injectEndpoints({
   endpoints: build => ({
     login: login(build),
     signup: signup(build),
+    checkUser: checkUser(build),
     checkToken: checkToken(build),
   }),
   overrideExisting: false,
@@ -15,6 +17,6 @@ export const userApi = api.injectEndpoints({
 export const {
   useLoginMutation,
   useSignupMutation,
-  useLazyCheckTokenQuery,
-  useCheckTokenQuery,
+  useLazyCheckUserQuery,
+  useCheckTokenMutation,
 } = userApi;

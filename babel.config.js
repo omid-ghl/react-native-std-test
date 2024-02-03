@@ -16,6 +16,8 @@ plugins.push(
         '@Theme': './src/Theme',
         '@Translations': './src/Translations',
         '@Store': './src/Store',
+        '@constants': './src/constants',
+        '@Hooks': './src/Hooks',
       },
     },
   ],

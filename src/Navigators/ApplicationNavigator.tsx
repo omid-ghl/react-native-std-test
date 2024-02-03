@@ -10,6 +10,7 @@ import {StackParamList} from './Stacks';
 import {authNavigation} from '@Containers/auth';
 import {mainNavigation} from '@Containers/main';
 import TabBarNavigator from './TabBarNavigator';
+import {startUpNavigation} from '@Containers/startup';
 
 export const ApplicationNavigator = () => {
   const routeNameRef = useRef<string>();
@@ -36,7 +37,8 @@ export const ApplicationNavigator = () => {
           headerBackTitleVisible: false,
           headerLeftContainerStyle: styles.headerLeftContainer,
         }}
-        initialRouteName="tabBar">
+        initialRouteName="splash">
+        {startUpNavigation()}
         <Stack.Screen name="tabBar" component={TabBarNavigator} />
         {authNavigation()}
         {mainNavigation()}

@@ -2,5 +2,8 @@ import {User} from '../User';
 
 export interface LoginResponse {
   user: User;
-  token: string;
+  token: {
+    access: string;
+    refresh: string;
+  };
 }

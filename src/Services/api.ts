@@ -1,6 +1,7 @@
 // import {getCurrentNavigationState, navigate} from '@Navigators';
 // import {RootState} from '@Store';
 // import {setGuestIntendedNavigationState} from '@Store/navigation';
+import {navigate} from '@Navigators';
 import {
   createApi,
   EndpointBuilder,
@@ -10,13 +11,13 @@ import {
 } from '@reduxjs/toolkit/query/react';
 
 const baseQuery = fetchBaseQuery({
-  baseUrl: 'http://rn-api.codebnb.me/api/',
+  baseUrl: 'https://rn-api.codebnb.me/api/',
   prepareHeaders: (headers, {getState}) => {
     headers.set('Accept', 'application/json');
+    const token = (getState() as RootState).auth.accessToken;
 
-    const token = (getState() as RootState).auth.token;
     if (token) {
-      headers.set('Authorization', `Bearer ${token}`);
+      headers.set('Authorization', `JWT ${token}`);
     }
     return headers;
   },
@@ -101,7 +102,7 @@ const baseQueryWithInterceptor: BaseQueryType = async (
     //     stale: true,
     //   }),
     // );
-    // navigate('auth');
+    navigate('login');
   }
   return result;
 };

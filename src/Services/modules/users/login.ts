@@ -4,9 +4,8 @@ import {ApiEndpointBuilder} from '@Services/api';
 export default (build: ApiEndpointBuilder) =>
   build.mutation<LoginResponse, LoginRequest>({
     query: loginRequest => ({
-      url: 'user/sign-in',
+      url: 'user/sign-in/',
       body: loginRequest,
       method: 'POST',
     }),
-    invalidatesTags: result => (result ? ['User', 'Unauthorized'] : []),
   });

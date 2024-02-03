@@ -1,7 +1,9 @@
 import {AppScreen, Button, CheckBox, Input} from '@Commons';
+import {useAppDispatch} from '@Hooks';
 import {ILogin} from '@Models';
 import {StackParamList} from '@Navigators/Stacks';
-import {useLoginMutation} from '@Services';
+import {TokenStorage, useLoginMutation} from '@Services';
+import {setAccessToken, setRefreshToken} from '@Store/auth';
 import {colors, fonts, typography} from '@Theme';
 import {StackScreenProps} from '@react-navigation/stack';
 import {useFormik} from 'formik';
@@ -21,6 +23,7 @@ import * as Yup from 'yup';
 const Login: React.FC<StackScreenProps<StackParamList, 'login'>> = ({
   navigation,
 }) => {
+  const dispatch = useAppDispatch();
   const {t} = useTranslation();
   const [remembering, setRemembering] = useState(false);
   const [
@@ -38,8 +41,10 @@ const Login: React.FC<StackScreenProps<StackParamList, 'login'>> = ({
 
   const performLogin = useCallback(
     (values: ILogin.FormState) => {
-      Keyboard.dismiss();
-      login({email: values.email.trim(), password: values.password.trim()});
+      if (values.email.trim() && values.password.trim()) {
+        Keyboard.dismiss();
+        login({email: values.email.trim(), password: values.password.trim()});
+      }
     },
     [login],
   );
@@ -70,8 +75,8 @@ const Login: React.FC<StackScreenProps<StackParamList, 'login'>> = ({
     setErrors,
   } = useFormik<ILogin.FormState>({
     initialValues: {
-      email: '',
-      password: '',
+      email: 'example@gmail.com',
+      password: 'Example11!',
     },
     onSubmit: performLogin,
     validationSchema: LoginValidationSchema,
@@ -82,10 +87,28 @@ const Login: React.FC<StackScreenProps<StackParamList, 'login'>> = ({
   }, [navigation]);
 
   useEffect(() => {
-    // navigation.navigate('home', {
-    //   email: values.email.trim(),
-    // });
-  }, [navigation, values.email]);
+    (async () => {
+      if (loginIsSuccess) {
+        navigation.reset({
+          routes: [
+            {
+              name: 'tabBar',
+              params: {},
+            },
+          ],
+        });
+        if (loginData) {
+          const accessToken = loginData?.token.access;
+          const refreshToken = loginData?.token.refresh;
+
+          await TokenStorage.setToken(accessToken).then(() => {
+            dispatch(setAccessToken(accessToken));
+            dispatch(setRefreshToken(refreshToken));
+          });
+        }
+      }
+    })();
+  }, [dispatch, loginData, loginIsSuccess, navigation]);
 
   const checkBoxAction = () => {
     setRemembering(pre => !pre);
@@ -122,6 +145,7 @@ const Login: React.FC<StackScreenProps<StackParamList, 'login'>> = ({
             title={t('remember_me')}
           />
           <Button
+            isLoading={loginIsLoading}
             softDisable={!isValid}
             fullWidth
             onPress={handleSubmit}

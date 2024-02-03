@@ -1,8 +1,11 @@
-import {User} from '@/Models';
-import {ApiEndpointBuilder} from '@/Services/api';
+import {GetRefreshTokenResponse, GetRefreshTokenRequest} from '@Models';
+import {ApiEndpointBuilder} from '@Services/api';
 
-export const checkToken = (build: ApiEndpointBuilder) =>
-  build.query<User, void>({
-    query: () => 'token/check',
-    providesTags: ['User'],
+export default (build: ApiEndpointBuilder) =>
+  build.mutation<GetRefreshTokenResponse, GetRefreshTokenRequest>({
+    query: tokenRequest => ({
+      url: 'user/refresh/',
+      body: tokenRequest,
+      method: 'POST',
+    }),
   });

@@ -197,13 +197,8 @@ const SignUp: React.FC<StackScreenProps<StackParamList, 'signUp'>> = ({
             touched={touched.password}
             error={errors.password}
           />
-          {/* <Input
-            onChangeText={handleChange('email')}
-            value={values.email}
-            wrapperStyle={styles.inputWrapper}
-            placeholder={t('Confirm Password')}
-          /> */}
           <Button
+            isLoading={signUpIsLoading}
             softDisable={!isValid}
             fullWidth
             onPress={handleSubmit}

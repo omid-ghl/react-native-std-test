@@ -5,6 +5,7 @@ export const colors = {
   bgError: '#FFF0F0',
   gray80: '#444444',
   gray30: '#999999',
+  gray10: '#E5E5E5',
   bgContent: '##F6F6F6',
   red: '#DA2828',
   black: '#000',

@@ -3,7 +3,7 @@ import {useAppDispatch} from '@Hooks';
 import {ILogin} from '@Models';
 import {StackParamList} from '@Navigators/Stacks';
 import {TokenStorage, useLoginMutation} from '@Services';
-import {setAccessToken, setRefreshToken} from '@Store/auth';
+import {setAccessToken, setRefreshToken, setUser} from '@Store/auth';
 import {colors, fonts, typography} from '@Theme';
 import {StackScreenProps} from '@react-navigation/stack';
 import {useFormik} from 'formik';
@@ -89,6 +89,19 @@ const Login: React.FC<StackScreenProps<StackParamList, 'login'>> = ({
   useEffect(() => {
     (async () => {
       if (loginIsSuccess) {
+        if (loginData) {
+          const accessToken = loginData?.token.access;
+          const refreshToken = loginData?.token.refresh;
+          const userData = loginData?.user;
+
+          dispatch(setUser(userData));
+
+          await TokenStorage.setToken(accessToken).then(() => {
+            dispatch(setAccessToken(accessToken));
+            dispatch(setRefreshToken(refreshToken));
+          });
+        }
+
         navigation.reset({
           routes: [
             {
@@ -97,15 +110,6 @@ const Login: React.FC<StackScreenProps<StackParamList, 'login'>> = ({
             },
           ],
         });
-        if (loginData) {
-          const accessToken = loginData?.token.access;
-          const refreshToken = loginData?.token.refresh;
-
-          await TokenStorage.setToken(accessToken).then(() => {
-            dispatch(setAccessToken(accessToken));
-            dispatch(setRefreshToken(refreshToken));
-          });
-        }
       }
     })();
   }, [dispatch, loginData, loginIsSuccess, navigation]);

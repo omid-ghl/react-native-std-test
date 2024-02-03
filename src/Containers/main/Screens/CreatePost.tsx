@@ -1,13 +1,13 @@
 import {AppScreen, Button, Input} from '@Commons';
 import {ICreatePost} from '@Models';
 import {StackParamList} from '@Navigators/Stacks';
-import {colors} from '@Theme';
+import {SVG, colors} from '@Theme';
 import {dimensions} from '@Theme/Variables';
 import {StackScreenProps} from '@react-navigation/stack';
 import {useFormik} from 'formik';
 import React, {useCallback, useMemo} from 'react';
 import {useTranslation} from 'react-i18next';
-import {Keyboard, StyleSheet, View} from 'react-native';
+import {Keyboard, StyleSheet, TouchableOpacity, View} from 'react-native';
 import * as Yup from 'yup';
 import {CreatePostHeader} from '../components';
 import Toast from 'react-native-toast-message';
@@ -53,7 +53,10 @@ const CreatePost: React.FC<StackScreenProps<StackParamList, 'createPost'>> = ({
     <AppScreen style={styles.container}>
       <CreatePostHeader />
       <View style={styles.contentContainer}>
-        <View style={styles.imageContainer} />
+        <TouchableOpacity>
+          <SVG.PlaceHolder />
+          <View style={styles.imageContainer} />
+        </TouchableOpacity>
 
         <Input
           onChangeText={handleChange('title')}
@@ -102,8 +105,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   imageContainer: {
-    width: dimensions.width / 3,
-    height: dimensions.width / 3,
+    width: 150,
+    height: 150,
     backgroundColor: colors.gray30,
     borderRadius: 10,
   },

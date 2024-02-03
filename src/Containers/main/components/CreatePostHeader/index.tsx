@@ -1,7 +1,7 @@
 import React, {useCallback} from 'react';
 import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 
-import {SVG, colors} from '@Theme';
+import {SVG, colors, typography} from '@Theme';
 import {ICreatePostHeader} from './CreatePostHeader';
 import {useNavigation} from '@react-navigation/native';
 import {dimensions} from '@Theme/Variables';
@@ -50,6 +50,8 @@ const styles = StyleSheet.create({
   title: {
     flex: 1,
     textAlign: 'center',
+    ...typography.mid,
+    color: colors.primary,
   },
   placeholder: {
     width: 35,

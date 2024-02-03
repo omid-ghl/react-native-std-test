@@ -9,7 +9,6 @@ import {verifyByUser} from '@Commons';
 import Shadows from '@Theme/Shadows';
 
 const PostCard = (props: IPostCard.IProps) => {
-  const navigation = useNavigation();
   const {t} = useTranslation();
   const {title, description, id, category} = props;
 
@@ -67,7 +66,7 @@ const styles = StyleSheet.create({
     flex: 0.5,
     marginRight: 10,
     borderRadius: 10,
-    backgroundColor: colors.gray30,
+    backgroundColor: colors.gray10,
     height: '100%',
     resizeMode: 'cover',
   },

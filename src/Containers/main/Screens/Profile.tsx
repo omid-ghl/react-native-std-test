@@ -64,7 +64,7 @@ const styles = StyleSheet.create({
     width: 120,
     height: 120,
     borderRadius: 120,
-    backgroundColor: colors.gray30,
+    backgroundColor: colors.gray10,
   },
   profileName: {
     marginTop: 60,

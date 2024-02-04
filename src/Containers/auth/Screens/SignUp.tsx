@@ -126,7 +126,7 @@ const SignUp: React.FC<StackScreenProps<StackParamList, 'signUp'>> = ({
     }
   }, [navigation, signUpData?.message, signUpIsSuccess, values.email]);
 
-  const choosePicFromGallery = async () => {
+  const choosePic = async () => {
     Alert.alert('Pick your image', '', [
       {
         text: 'Cancel',
@@ -157,7 +157,7 @@ const SignUp: React.FC<StackScreenProps<StackParamList, 'signUp'>> = ({
           <Text style={styles.headerText}>{t('sign_up')}</Text>
           <TouchableOpacity
             activeOpacity={0.9}
-            onPress={choosePicFromGallery}
+            onPress={choosePic}
             style={styles.imageWrapper}>
             {imageUri ? (
               <Image style={styles.imageStyle} source={{uri: imageUri}} />

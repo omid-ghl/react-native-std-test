@@ -4,25 +4,16 @@ import {SVG, colors, typography} from '@Theme';
 import {StackScreenProps} from '@react-navigation/stack';
 import React, {useCallback} from 'react';
 import {useTranslation} from 'react-i18next';
-import {FlatList, StyleSheet, View} from 'react-native';
+import {
+  ActivityIndicator,
+  FlatList,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 import {PostCard} from '../components';
-
-const data = [
-  {
-    id: '1',
-    title: 'Item 1',
-    description: 'Lorem Ipsum is simply dummy text of the ...',
-    category: 'test',
-    image: 'https://picsum.photos/200/300',
-  },
-  {
-    id: '2',
-    title: 'Item 2',
-    description: 'Lorem Ipsum is simply dummy text of the ...',
-    category: 'test',
-    image: 'https://picsum.photos/200/300',
-  },
-];
+import {useGetPostsQuery} from '@Services/modules/post';
+import {Post} from '@Models';
 
 const Home: React.FC<StackScreenProps<StackParamList, 'home'>> = ({
   navigation,
@@ -32,6 +23,65 @@ const Home: React.FC<StackScreenProps<StackParamList, 'home'>> = ({
   const gotoCreateNewPost = useCallback(() => {
     navigation.navigate('createPost');
   }, [navigation]);
+
+  const {
+    currentData: posts,
+    isLoading: loadingPosts,
+    isFetching: fetchingPosts,
+    refetch: refetchPosts,
+    isError: postsFailed,
+  } = useGetPostsQuery({});
+
+  const renderPostCard = useCallback(
+    ({
+      item: {
+        title,
+        description,
+        id,
+        category: {name},
+        image,
+      },
+    }: {
+      item: Post;
+    }) => (
+      <PostCard
+        title={title}
+        description={description}
+        id={id}
+        category={name}
+        image={image}
+      />
+    ),
+    [],
+  );
+
+  const renderFooter = () => {
+    if (loadingPosts || fetchingPosts) {
+      return (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="small" color={colors.primary} />
+        </View>
+      );
+    }
+    return null;
+  };
+
+  const renderEmptyList = () => {
+    if (postsFailed) {
+      return (
+        <View style={styles.errorContainer}>
+          <Text style={styles.errorMessage}>Error loading posts</Text>
+        </View>
+      );
+    } else if (!loadingPosts && posts?.length === 0) {
+      return (
+        <View style={styles.emptyContainer}>
+          <Text style={styles.emptyMessage}>No posts available</Text>
+        </View>
+      );
+    }
+    return null;
+  };
 
   return (
     <AppScreen style={styles.container}>
@@ -46,17 +96,14 @@ const Home: React.FC<StackScreenProps<StackParamList, 'home'>> = ({
       </View>
 
       <FlatList
-        data={data}
-        keyExtractor={item => item.id}
-        renderItem={({item: {title, description, id, category}}) => (
-          <PostCard
-            title={title}
-            description={description}
-            id={id}
-            category={category}
-          />
-        )}
+        keyExtractor={item => JSON.stringify(item?.id)}
+        renderItem={renderPostCard}
         contentContainerStyle={styles.flatListContainer}
+        ListFooterComponent={renderFooter}
+        ListEmptyComponent={renderEmptyList}
+        onRefresh={refetchPosts}
+        refreshing={fetchingPosts}
+        data={posts}
       />
     </AppScreen>
   );
@@ -67,7 +114,6 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.bgContent,
   },
-
   buttonContainer: {
     width: '95%',
     alignSelf: 'center',
@@ -85,6 +131,26 @@ const styles = StyleSheet.create({
   flatListContainer: {
     alignItems: 'center',
     paddingBottom: 40,
+  },
+  loadingContainer: {
+    paddingVertical: 10,
+    alignItems: 'center',
+  },
+  errorContainer: {
+    paddingVertical: 10,
+    alignItems: 'center',
+  },
+  errorMessage: {
+    color: colors.error,
+    fontSize: typography.body,
+  },
+  emptyContainer: {
+    paddingVertical: 10,
+    alignItems: 'center',
+  },
+  emptyMessage: {
+    color: colors.textSecondary,
+    fontSize: typography.body,
   },
 });
 

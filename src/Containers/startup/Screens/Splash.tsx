@@ -1,7 +1,9 @@
 import {AppScreen} from '@Commons';
 import {StackParamList} from '@Navigators/Stacks';
 import {TokenStorage, useLazyCheckUserQuery} from '@Services';
+import {useLazyGetCategoriesQuery} from '@Services/modules/post';
 import {setAccessToken, setUser} from '@Store/auth';
+import {setCategories} from '@Store/categories';
 import {colors, typography} from '@Theme';
 import {MINIMUM_DELAY_MS} from '@constants/common';
 import {StackScreenProps} from '@react-navigation/stack';
@@ -17,6 +19,8 @@ const Splash: React.FC<StackScreenProps<StackParamList, 'splash'>> = ({
   const dispatch = useDispatch();
   const {t} = useTranslation();
   const [checkUser] = useLazyCheckUserQuery();
+
+  const [getCategories] = useLazyGetCategoriesQuery();
 
   const resetNavigationTo = useCallback(
     (name: keyof StackParamList) => {
@@ -34,10 +38,20 @@ const Splash: React.FC<StackScreenProps<StackParamList, 'splash'>> = ({
     [getNavigationState, reset],
   );
 
+  const prefetchCategories = useCallback(async () => {
+    try {
+      const categories = await getCategories({}).unwrap();
+      if (categories) {
+        dispatch(setCategories(categories));
+      }
+    } catch (error) {}
+  }, [dispatch, getCategories]);
+
   const checkUserAndNavigate = useCallback(async () => {
     try {
       const userInfo = await checkUser().unwrap();
       dispatch(setUser(userInfo));
+      prefetchCategories({});
 
       resetNavigationTo('tabBar');
       // dispatch(setAccessToken(userToken.));
@@ -50,7 +64,7 @@ const Splash: React.FC<StackScreenProps<StackParamList, 'splash'>> = ({
       }
       resetNavigationTo('login');
     }
-  }, [checkUser, dispatch, resetNavigationTo]);
+  }, [checkUser, dispatch, prefetchCategories, resetNavigationTo]);
 
   useEffect(() => {
     TokenStorage.getToken()

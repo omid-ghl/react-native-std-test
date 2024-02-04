@@ -4,6 +4,7 @@ import Plus from '@Assets/Svg/plus.svg';
 import Trash from '@Assets/Svg/trash.svg';
 import ArrowLeft from '@Assets/Svg/arrowLeft.svg';
 import PlaceHolder from '@Assets/Svg/imagePlaceHolder.svg';
+import ArrowDown from '@Assets/Svg/arrowDown.svg';
 
 export const SVG = {
   BareTick,
@@ -12,4 +13,5 @@ export const SVG = {
   Trash,
   ArrowLeft,
   PlaceHolder,
+  ArrowDown,
 };

@@ -1,16 +1,28 @@
 import React, {useCallback} from 'react';
-import {Image, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import {
+  ActivityIndicator,
+  Image,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 
 import {SVG, colors, fonts, typography} from '@Theme';
 import {IPostCard} from './PostCard';
-import {useNavigation} from '@react-navigation/native';
 import {useTranslation} from 'react-i18next';
 import {verifyByUser} from '@Commons';
 import Shadows from '@Theme/Shadows';
+import {useDeletepostMutation} from '@Services/modules/post';
 
 const PostCard = (props: IPostCard.IProps) => {
   const {t} = useTranslation();
-  const {title, description, id, category} = props;
+  const {title, description, id, category, image} = props;
+
+  const [
+    deletePost,
+    {isSuccess: deletePostIsSuccess, isLoading: deleting, data},
+  ] = useDeletepostMutation();
 
   const handleDelete = useCallback(() => {
     verifyByUser({
@@ -18,7 +30,9 @@ const PostCard = (props: IPostCard.IProps) => {
       actions: {
         onSuccess: {
           title: t('delete'),
-          task: () => {},
+          task: () => {
+            deletePost({postId: id});
+          },
         },
         onFailure: {
           title: t('cancel'),
@@ -26,28 +40,32 @@ const PostCard = (props: IPostCard.IProps) => {
         },
       },
     });
-  }, [t]);
+  }, [deletePost, id, t]);
+
+  if (deletePostIsSuccess && data) {
+    return;
+  }
 
   return (
-    <View key={id} style={styles.card}>
-      <Image
-        source={{uri: 'https://picsum.photos/200/300'}}
-        style={styles.image}
-      />
-      <View style={styles.content}>
-        <View style={styles.header}>
-          <Text style={styles.type}>{t('Name')}</Text>
-          <TouchableOpacity onPress={handleDelete}>
-            <SVG.Trash />
-          </TouchableOpacity>
+    <>
+      <View key={id} style={[styles.card, {opacity: deleting ? 0.5 : 1}]}>
+        <Image source={{uri: image}} style={styles.image} />
+        <View style={styles.content}>
+          <View style={styles.header}>
+            <Text style={styles.type}>{t('Name')}</Text>
+            <TouchableOpacity onPress={handleDelete}>
+              <SVG.Trash />
+            </TouchableOpacity>
+          </View>
+          <Text style={styles.descriptionStyle}>{title}</Text>
+          <Text style={styles.type}>{t('description')}</Text>
+          <Text style={styles.descriptionStyle}>{description}</Text>
+          <Text style={styles.type}>{t('category')}</Text>
+          <Text style={styles.descriptionStyle}>{category}</Text>
         </View>
-        <Text style={styles.descriptionStyle}>{title}</Text>
-        <Text style={styles.type}>{t('description')}</Text>
-        <Text style={styles.descriptionStyle}>{description}</Text>
-        <Text style={styles.type}>{t('category')}</Text>
-        <Text style={styles.descriptionStyle}>{category}</Text>
+        {deleting && <ActivityIndicator style={styles.indicatorStyle} />}
       </View>
-    </View>
+    </>
   );
 };
 
@@ -88,6 +106,14 @@ const styles = StyleSheet.create({
     ...typography.minimal,
     fontWeight: '400',
     fontFamily: fonts.regular,
+  },
+  indicatorStyle: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    left: 0,
+    bottom: 0,
+    zIndex: 10,
   },
 });
 
